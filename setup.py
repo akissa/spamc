@@ -35,7 +35,7 @@ def get_readme():
             break
     try:
         if pandoc:
-            cmd = [pandoc, 'README.md']
+            cmd = [pandoc, '-t', 'rst' 'README.md']
             long_description = os.popen(' '.join(cmd)).read()
         else:
             raise ValueError
@@ -51,7 +51,7 @@ def main():
     version = load_source("version", os.path.join("spamc", "version.py"))
 
     opts = dict(name="spamc",
-        version=version,
+        version=version.__version__,
         description="Python spamassassin spamc client library",
         long_description=get_readme(),
         keywords="spam spamc spamassassin",
