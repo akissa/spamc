@@ -3,8 +3,8 @@
 
 ## Python spamassassin spamc client library
 
-spamc is a python module that provides all the functionality client side
-functionality of the spamassassin
+spamc is a python module that provides all the client side functionality of the
+[spamassassin](https://spamassassin.apache.org)
 [spamd protocol](https://github.com/apache/spamassassin/blob/trunk/spamd/PROTOCOL)
 
 It is built using [restkit](http://restkit.readthedocs.org) so can be used
