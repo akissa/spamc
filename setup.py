@@ -35,7 +35,7 @@ def get_readme():
             break
     try:
         if pandoc:
-            cmd = [pandoc, '-t', 'rst' 'README.md']
+            cmd = [pandoc, '-t', 'rst', 'README.md']
             long_description = os.popen(' '.join(cmd)).read()
         else:
             raise ValueError
@@ -44,6 +44,7 @@ def get_readme():
     return long_description
 
 
+# pylint: disable-msg=W0142
 def main():
     """Main"""
     lic = ('License :: OSI Approved :: GNU Affero '

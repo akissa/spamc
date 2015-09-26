@@ -15,13 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 spamc: Python spamassassin spamc client library
-
-Copyright 2015, Andrew Colin Kissa
-Licensed under AGPLv3+
+exceptions
 """
-from spamc.client import SpamC
-from spamc.version import version_info, __version__
 
 
-assert SpamC
-assert version_info
+class SpamCError(Exception):
+    """SpamCError Exceptions"""
+    def __init__(self, message):
+        """Init"""
+        super(SpamCError, self).__init__(message)

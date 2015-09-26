@@ -15,13 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 spamc: Python spamassassin spamc client library
-
-Copyright 2015, Andrew Colin Kissa
-Licensed under AGPLv3+
+regular expressions
 """
-from spamc.client import SpamC
-from spamc.version import version_info, __version__
+import re
 
 
-assert SpamC
-assert version_info
+SPACE_RE = re.compile(r'\n([\s]*)')
+RESPONSE_RE = re.compile(r'^SPAMD/(?:[0-9\.]+)\s(?P<code>[0-9]+)'
+r'\s(?P<message>[0-9A-Z_]+)$')
+SPAM_RE = re.compile(r'^Spam:\s(?P<isspam>True|False|Yes|No)\s;'
+r'\s(?P<score>[0-9\.]+)\s\/\s(?P<basescore>[0-9\.]+)')
+DESC_RE = re.compile(r'^\s*([\S\s]*)\b\s*$')
+PART_RE = re.compile(r'([A-Z0-9\_]+)\,')
+# -0.0 NO_RELAYS              Informational: message was not relayed via SMTP
+#  1.0 MISSING_HEADERS        Missing To: header
+RULE_RE = re.compile(r'(\s|-)([0-9\.]+)\s+([A-Z0-9\_]+)\s+([^:]+)\:\s([^\s]+)')
+MATCH1_RE = re.compile(r'((?:\s|-)(?:[0-9\.]+)\s(?:[A-Z0-9\_]+)'
+r'\s(?:[^:]+)\:\s(?:[^\n]+))')
