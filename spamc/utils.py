@@ -1,8 +1,27 @@
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4
 """utilities"""
 import errno
 import select
 import socket
 import platform
+
+
+# def dedup(seq, checkfunc=None):
+#     """Remove duplicates while maintaining order"""
+#     if checkfunc is None:
+#         def checkfunc(val):
+#             """inner"""
+#             return val
+#     seen = {}
+#     result = []
+#     for item in seq:
+#         marker = checkfunc(item)
+#         if marker in seen:
+#             continue
+#         seen[marker] = 1
+#         result.append(item)
+#     return result
 
 
 def can_use_kqueue():

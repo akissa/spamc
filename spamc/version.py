@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4
 # spamc - Python spamassassin spamc client library
 # Copyright (C) 2015  Andrew Colin Kissa <andrew@topdog.za.net>
 #

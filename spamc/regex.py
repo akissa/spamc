@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4
 # spamc - Python spamassassin spamc client library
 # Copyright (C) 2015  Andrew Colin Kissa <andrew@topdog.za.net>
 #
@@ -20,15 +22,13 @@ regular expressions
 import re
 
 
+BEGSP_RE = re.compile(r'^\s+\S+')
 SPACE_RE = re.compile(r'\n([\s]*)')
 RESPONSE_RE = re.compile(r'^SPAMD/(?:[0-9\.]+)\s(?P<code>[0-9]+)'
 r'\s(?P<message>[0-9A-Z_]+)$')
 SPAM_RE = re.compile(r'^Spam:\s(?P<isspam>True|False|Yes|No)\s;'
-r'\s(?P<score>[0-9\.]+)\s\/\s(?P<basescore>[0-9\.]+)')
+r'\s(?P<score>\-?[0-9\.]+)\s\/\s(?P<basescore>[0-9\.]+)')
 DESC_RE = re.compile(r'^\s*([\S\s]*)\b\s*$')
-PART_RE = re.compile(r'([A-Z0-9\_]+)\,')
-# -0.0 NO_RELAYS              Informational: message was not relayed via SMTP
-#  1.0 MISSING_HEADERS        Missing To: header
-RULE_RE = re.compile(r'(\s|-)([0-9\.]+)\s+([A-Z0-9\_]+)\s+([^:]+)\:\s([^\s]+)')
-MATCH1_RE = re.compile(r'((?:\s|-)(?:[0-9\.]+)\s(?:[A-Z0-9\_]+)'
-r'\s(?:[^:]+)\:\s(?:[^\n]+))')
+PART_RE = re.compile(r'(?:([A-Z][A-Z0-9\_]+)\,?)')
+RULE_RE = re.compile(r'^(\s|-)([0-9\.]+)\s+([A-Z0-9\_]+)\s+'
+r'([^\s|-|\d]+.*(?:\n\s{2,}\S.*)?)$', re.MULTILINE)
