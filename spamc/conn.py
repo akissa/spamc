@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4
 # spamc - Python spamassassin spamc client library
 # Copyright (C) 2015  Andrew Colin Kissa <andrew@topdog.za.net>
 #
@@ -17,6 +19,7 @@
 spamc: Python spamassassin spamc client library
 connections
 """
+import ssl
 import time
 import random
 import socket
@@ -30,9 +33,13 @@ CHUNK_SIZE = 16 * 1024
 
 class SpamCTcpConnector(TcpConnector):
     """SpamCTcpConnector"""
-    def __init__(self, host, port, backend_mod, pool=None):
+    def __init__(self, host, port, backend_mod, pool=None,
+            is_ssl=False, **ssl_args):
         super(SpamCTcpConnector, self).__init__(host, port, backend_mod,
             pool)
+        if is_ssl:
+            self._s = ssl.wrap_socket(self._s, **ssl_args)
+        self.is_ssl = is_ssl
 
     def __del__(self):
         """override delete"""

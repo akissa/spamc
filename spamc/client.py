@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4
 # spamc - Python spamassassin spamc client library
 # Copyright (C) 2015  Andrew Colin Kissa <andrew@topdog.za.net>
 #
@@ -22,12 +24,13 @@ import errno
 import types
 import socket
 
+from email.parser import Parser
+
 from http_parser.reader import SocketReader
 
 from spamc.exceptions import SpamCError
 from spamc.session import return_session
-from spamc.regex import (RESPONSE_RE, SPAM_RE, DESC_RE, PART_RE,
-RULE_RE, MATCH1_RE, SPACE_RE)
+from spamc.regex import RESPONSE_RE, SPAM_RE, PART_RE, RULE_RE, SPACE_RE
 
 PROTOCOL_VERSION = 'SPAMC/1.5'
 
@@ -59,6 +62,8 @@ def get_response(cmd, conn):
             resp_dict.update(match.groupdict())
             resp_dict['code'] = int(resp_dict['code'])
         else:
+            if not line.strip():
+                continue
             match = SPAM_RE.match(line)
             if match:
                 tmp = match.groupdict()
@@ -69,57 +74,30 @@ def get_response(cmd, conn):
                 if cmd == 'SYMBOLS':
                     match = PART_RE.findall(line)
                     for part in match:
-                        resp_dict['symbols'].append(part.rstrip(','))
+                        resp_dict['symbols'].append(part)
             if not match and cmd != 'PROCESS':
-                match = MATCH1_RE.findall(line)
+                match = RULE_RE.findall(line)
                 if match:
                     resp_dict['report'] = []
-                    match = [SPACE_RE.sub(' ', part) for part in match]
                     for part in match:
-                        matches = RULE_RE.match(part)
-                        matches = matches.groups()
-                        try:
-                            resp_dict['report'].append(
-                                dict(score=matches[2],
-                                name=matches[3],
-                                description=DESC_RE.sub('$1', matches[4]),
-                                type=matches[5]))
-                        except IndexError:
-                            pass
+                        score = part[0] + part[1]
+                        score = score.strip()
+                        resp_dict['report'].append(
+                            dict(score=score,
+                            name=part[2],
+                            description=SPACE_RE.sub(" ", part[3])))
             if line.startswith('DidSet:'):
                 resp_dict['didset'] = True
             if line.startswith('DidRemove:'):
-                resp_dict['didremove'] = False
+                resp_dict['didremove'] = True
     if cmd == 'PROCESS':
         resp_dict['message'] = ''.join(lines[4:]) + '\r\n'
-        # resp.seek(0)
-        # count = 0
-        # for line in resp.readline():
-        #     line = line.rstrip()
-        #     if count >= 4:
-        #         resp_dict['message'] += line
-        #     count += 1
-        # resp_dict['message'] += '\r\n'
     if cmd == 'HEADERS':
         resp_dict['headers'] = []
-        for line in lines[4:]:
-            if '\t' not in line:
-                resp_dict['headers'].append(line)
-            else:
-                length = len(resp_dict['headers']) - 1
-                resp_dict['headers'][length] = \
-                    resp_dict['headers'][length] + line
-        # resp.seek(0)
-        # count = 0
-        # for line in resp.readline():
-        #     line = line.rstrip()
-        #     if count >= 4:
-        #         if '\t' not in line:
-        #             resp_dict['headers'].append(line)
-        #         else:
-        #             length = len(resp_dict['headers']) - 1
-        #             resp_dict['headers'][length] = \
-        #                 resp_dict['headers'][length] + line
+        parser = Parser()
+        headers = parser.parsestr('\r\n'.join(lines[4:]), headersonly=True)
+        for item in headers.items():
+            resp_dict['headers'].append("%s: %s" % item)
     return resp_dict
 
 
@@ -137,7 +115,9 @@ class SpamC(object):
                 wait_tries=0.3,
                 max_tries=3,
                 pool_size=10,
-                backend="thread",):
+                backend="thread",
+                is_ssl=None,
+                **ssl_args):
         """Init"""
         session_opts = dict(
             timeout=timeout,
@@ -159,13 +139,20 @@ class SpamC(object):
         self.max_tries = max_tries
         self.wait_tries = wait_tries
         self.timeout = timeout
+        self.is_ssl = is_ssl
+        self.ssl_args = ssl_args or {}
 
     def get_connection(self):
         """Gets a connection from the pool or creates a new connection"""
         conn = None
         if not conn:
-            conn = self._pool.get(host=self.host, port=self.port,
-                    pool=self._pool)
+            if self.host is not None:
+                conn = self._pool.get(host=self.host, port=self.port,
+                        pool=self._pool, is_ssl=self.is_ssl,
+                        **self.ssl_args)
+            else:
+                conn = self._pool.get(host=self.host, port=self.port,
+                        pool=self._pool)
         return conn
 
     def get_headers(self, cmd, msg_length, extra_headers):
@@ -271,14 +258,17 @@ class SpamC(object):
         or a remote database (learning, reporting, forgetting, revoking)."""
         if isinstance(action, types.StringTypes):
             action = action.lower()
+
         if action not in ['learn', 'forget', 'report', 'revoke']:
             raise SpamCError('The action option is invalid')
-        if learnas:
-            mode = learnas.upper()
+
+        mode = learnas.upper()
+
         headers = {
             'Message-class': '',
             'Set': 'local',
         }
+
         if action == 'learn':
             if mode == 'SPAM':
                 headers['Message-class'] = 'spam'
