@@ -66,7 +66,7 @@ def main():
         include_package_data=True,
         zip_safe=False,
         tests_require=['mock', 'nose'],
-        install_requires=['restkit'],
+        install_requires=['socketpool', 'http-parser'],
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python',
