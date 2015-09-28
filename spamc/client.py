@@ -151,7 +151,7 @@ class SpamC(object):
                         pool=self._pool, is_ssl=self.is_ssl,
                         **self.ssl_args)
             else:
-                conn = self._pool.get(host=self.host, port=self.port,
+                conn = self._pool.get(socket_file=self.socket_file,
                         pool=self._pool)
         return conn
 
