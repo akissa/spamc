@@ -26,3 +26,13 @@ class SpamCError(Exception):
     def __init__(self, message):
         """Init"""
         super(SpamCError, self).__init__(message)
+
+
+class SpamCTimeOutError(SpamCError):
+    """Timeout Exceptions"""
+    pass
+
+
+class SpamCBrokenSockError(SpamCError):
+    """Broken socket Exceptions"""
+    pass

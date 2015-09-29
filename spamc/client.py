@@ -28,8 +28,8 @@ from email.parser import Parser
 
 from http_parser.reader import SocketReader
 
-from spamc.exceptions import SpamCError
 from spamc.session import return_session
+from spamc.exceptions import SpamCError, SpamCTimeOutError
 from spamc.regex import RESPONSE_RE, SPAM_RE, PART_RE, RULE_RE, SPACE_RE
 
 PROTOCOL_VERSION = 'SPAMC/1.5'
@@ -203,10 +203,14 @@ class SpamC(object):
                         conn.send(msg)
                 conn.send('\r\n')
                 return get_response(cmd, conn)
-            except (socket.gaierror, socket.timeout), err:
+            except socket.gaierror, err:
                 if conn is not None:
                     conn.release(True)
                 raise SpamCError(str(err))
+            except socket.timeout, err:
+                if conn is not None:
+                    conn.release(True)
+                raise SpamCTimeOutError(str(err))
             except socket.error, err:
                 if conn is not None:
                     conn.close()
