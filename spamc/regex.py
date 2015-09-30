@@ -25,10 +25,10 @@ import re
 BEGSP_RE = re.compile(r'^\s+\S+')
 SPACE_RE = re.compile(r'\n([\s]*)')
 RESPONSE_RE = re.compile(r'^SPAMD/(?:[0-9\.]+)\s(?P<code>[0-9]+)'
-r'\s(?P<message>[0-9A-Z_]+)$')
+                         r'\s(?P<message>[0-9A-Z_]+)$')
 SPAM_RE = re.compile(r'^Spam:\s(?P<isspam>True|False|Yes|No)\s;'
-r'\s(?P<score>\-?[0-9\.]+)\s\/\s(?P<basescore>[0-9\.]+)')
+                     r'\s(?P<score>\-?[0-9\.]+)\s\/\s(?P<basescore>[0-9\.]+)')
 DESC_RE = re.compile(r'^\s*([\S\s]*)\b\s*$')
 PART_RE = re.compile(r'(?:([A-Z][A-Z0-9\_]+)\,?)')
 RULE_RE = re.compile(r'^(\s|-)([0-9\.]+)\s+([A-Z0-9\_]+)\s+'
-r'([^\s|-|\d]+.*(?:\n\s{2,}\S.*)?)$', re.MULTILINE)
+                     r'([^\s|-|\d]+.*(?:\n\s{2,}\S.*)?)$', re.MULTILINE)

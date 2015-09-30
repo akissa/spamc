@@ -33,10 +33,12 @@ CHUNK_SIZE = 16 * 1024
 
 class SpamCTcpConnector(TcpConnector):
     """SpamCTcpConnector"""
+    # pylint: disable=R0913
+
     def __init__(self, host, port, backend_mod, pool=None,
-            is_ssl=False, **ssl_args):
+                 is_ssl=False, **ssl_args):
         super(SpamCTcpConnector, self).__init__(host, port, backend_mod,
-            pool)
+                                                pool)
         if is_ssl:
             self._s = ssl.wrap_socket(self._s, **ssl_args)
         self.is_ssl = is_ssl
@@ -68,6 +70,7 @@ class SpamCTcpConnector(TcpConnector):
         self._connected = False
         self._life = -1
 
+    # pylint: disable=arguments-differ
     def release(self, should_close=False):
         """release"""
         if self._pool is not None:
@@ -98,6 +101,7 @@ class SpamCTcpConnector(TcpConnector):
 
 class SpamCUnixConnector(Connector):
     """UnixConnector"""
+
     def __init__(self, socket_file, backend_mod, pool=None):
         self._sock = backend_mod.Socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket_file = socket_file

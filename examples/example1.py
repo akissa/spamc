@@ -26,22 +26,22 @@ from spamc import SpamC
 
 
 FILES = [dict(type='spam', name='sample-spam.txt'),
-        dict(type='ham', name='sample-nonspam.txt')]
+         dict(type='ham', name='sample-nonspam.txt')]
 
 
 def runit():
     """run things"""
     parser = OptionParser()
     parser.add_option('-s', '--server',
-                help='The spamassassin spamd server',
-                dest='server',
-                type='str',
-                default='standalone.home.topdog-software.com')
+                      help='The spamassassin spamd server',
+                      dest='server',
+                      type='str',
+                      default='standalone.home.topdog-software.com')
     parser.add_option('-t', '--tls',
-                help='Use TLS',
-                dest='tls',
-                action='store_true',
-                default=False)
+                      help='Use TLS',
+                      dest='tls',
+                      action='store_true',
+                      default=False)
     options, _ = parser.parse_args()
     sslopts = {}
     if options.tls:

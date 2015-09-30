@@ -23,12 +23,13 @@ from socketpool import ConnectionPool
 from spamc.conn import SpamCTcpConnector, SpamCUnixConnector
 
 
+# pylint: disable=invalid-name
 _default_session = {}
 
 
 def return_session(backend_name, **options):
     """Return session pool"""
-    # pylint: disable-msg=W0603
+    # pylint: disable=W0603
     global _default_session
 
     if options['host'] is None:
@@ -41,12 +42,12 @@ def return_session(backend_name, **options):
     if not _default_session:
         _default_session = {}
         pool = ConnectionPool(factory=connection,
-                backend=backend_name, **options)
+                              backend=backend_name, **options)
         _default_session[backend_name] = pool
     else:
         if backend_name not in _default_session:
             pool = ConnectionPool(factory=connection,
-                backend=backend_name, **options)
+                                  backend=backend_name, **options)
 
             _default_session[backend_name] = pool
         else:
@@ -56,7 +57,7 @@ def return_session(backend_name, **options):
 
 def set_session(backend_name, **options):
     """Set session pool"""
-    # pylint: disable-msg=W0603
+    # pylint: disable=W0603
     global _default_session
 
     if not _default_session:
@@ -73,6 +74,6 @@ def set_session(backend_name, **options):
         pool = _default_session.get(backend_name)
     else:
         pool = ConnectionPool(factory=connection,
-                backend=backend_name, **options)
+                              backend=backend_name, **options)
         _default_session[backend_name] = pool
     return pool

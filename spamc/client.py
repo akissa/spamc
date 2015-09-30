@@ -35,7 +35,7 @@ from spamc.regex import RESPONSE_RE, SPAM_RE, PART_RE, RULE_RE, SPACE_RE
 PROTOCOL_VERSION = 'SPAMC/1.5'
 
 
-# pylint: disable-msg=R0912,R0915
+# pylint: disable=R0912,R0915
 def get_response(cmd, conn):
     """Return a response"""
     resp = SocketReader(conn.socket())
@@ -84,8 +84,8 @@ def get_response(cmd, conn):
                         score = score.strip()
                         resp_dict['report'].append(
                             dict(score=score,
-                            name=part[2],
-                            description=SPACE_RE.sub(" ", part[3])))
+                                 name=part[2],
+                                 description=SPACE_RE.sub(" ", part[3])))
             if line.startswith('DidSet:'):
                 resp_dict['didset'] = True
             if line.startswith('DidRemove:'):
@@ -101,23 +101,24 @@ def get_response(cmd, conn):
     return resp_dict
 
 
-# pylint: disable-msg=R0902
+# pylint: disable=R0902
 class SpamC(object):
     """Spamc Client class"""
-    # pylint: disable-msg=R0913
+    # pylint: disable=R0913
+
     def __init__(self,
-                host=None,
-                port=783,
-                socket_file='/var/run/spamassassin/spamd.sock',
-                user=None,
-                pool=None,
-                timeout=None,
-                wait_tries=0.3,
-                max_tries=3,
-                pool_size=10,
-                backend="thread",
-                is_ssl=None,
-                **ssl_args):
+                 host=None,
+                 port=783,
+                 socket_file='/var/run/spamassassin/spamd.sock',
+                 user=None,
+                 pool=None,
+                 timeout=None,
+                 wait_tries=0.3,
+                 max_tries=3,
+                 pool_size=10,
+                 backend="thread",
+                 is_ssl=None,
+                 **ssl_args):
         """Init"""
         session_opts = dict(
             timeout=timeout,
@@ -127,7 +128,6 @@ class SpamC(object):
             host=host,
         )
         if pool is None:
-            # pylint: disable-msg=W0142
             pool = return_session(backend, **session_opts)
         self.host = host
         self.port = port
@@ -148,11 +148,11 @@ class SpamC(object):
         if not conn:
             if self.host is not None:
                 conn = self._pool.get(host=self.host, port=self.port,
-                        pool=self._pool, is_ssl=self.is_ssl,
-                        **self.ssl_args)
+                                      pool=self._pool, is_ssl=self.is_ssl,
+                                      **self.ssl_args)
             else:
                 conn = self._pool.get(socket_file=self.socket_file,
-                        pool=self._pool)
+                                      pool=self._pool)
         return conn
 
     def get_headers(self, cmd, msg_length, extra_headers):
@@ -171,7 +171,7 @@ class SpamC(object):
         headers.append('')
         return '\r\n'.join(headers)
 
-    # pylint: disable-msg=E1103
+    # pylint: disable=E1103
     def perform(self, cmd, msg='', extra_headers=None):
         """Perform the call"""
         tries = 0
@@ -215,7 +215,7 @@ class SpamC(object):
                 if conn is not None:
                     conn.close()
                 errors = (errno.EAGAIN, errno.EPIPE, errno.EBADF,
-                        errno.ECONNRESET)
+                          errno.ECONNRESET)
                 if err[0] not in errors or tries >= self.max_tries:
                     raise SpamCError("socket.error: %s" % str(err))
             except BaseException:

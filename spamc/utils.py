@@ -35,7 +35,7 @@ def can_use_kqueue():
     return True
 
 
-# pylint: disable-msg=R0911,R0912
+# pylint: disable=R0911,R0912
 def is_connected(skt):
     """Check if socket is connected"""
     try:
@@ -47,6 +47,7 @@ def is_connected(skt):
 
     try:
         if hasattr(select, "epoll"):
+            # pylint: disable=no-member
             epoller = select.epoll()
             epoller.register(fno, select.EPOLLOUT | select.EPOLLIN)
             events = epoller.poll(0)
@@ -57,6 +58,7 @@ def is_connected(skt):
                     return True
             epoller.unregister(fno)
         elif hasattr(select, "poll"):
+            # pylint: disable=no-member
             poller = select.poll()
             poller.register(fno, select.POLLOUT | select.POLLIN)
             events = poller.poll(0)
