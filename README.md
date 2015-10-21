@@ -10,6 +10,10 @@ spamc is a python module that provides all the client side functionality of the
 It can be used with [gevent](http://www.gevent.org) and [eventlet](http://www.eventlet.net),
 is thread safe, reuses connections and supports streaming.
 
+[![Build Status](https://travis-ci.org/akissa/spamc.svg)](https://travis-ci.org/akissa/spamc)
+[![Code Climate](https://codeclimate.com/github/akissa/spamc/badges/gpa.svg)](https://codeclimate.com/github/akissa/spamc)
+[![Test Coverage](https://codeclimate.com/github/akissa/spamc/badges/coverage.svg)](https://codeclimate.com/github/akissa/spamc/coverage)
+
 
 ## Installation
 
