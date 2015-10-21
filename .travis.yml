@@ -5,6 +5,8 @@ python:
 install:
     - pip install -r requirements_dev.txt --use-mirrors
     - python setup.py install
+sudo:
+    - required
 script: python setup.py nosetests
 branches:
     only:
