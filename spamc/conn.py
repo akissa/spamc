@@ -43,9 +43,9 @@ class SpamCTcpConnector(TcpConnector):
             self._s = ssl.wrap_socket(self._s, **ssl_args)
         self.is_ssl = is_ssl
 
-    def __del__(self):
-        """override delete"""
-        pass
+    # def __del__(self):
+    #     """override delete"""
+    #     pass
 
     def handle_exception(self, exception):
         """Raise exceptions"""
@@ -111,9 +111,9 @@ class SpamCUnixConnector(Connector):
         self._life = time.time() - random.randint(0, 10)
         self._pool = pool
 
-    def __del__(self):
-        """override"""
-        pass
+    # def __del__(self):
+    #     """override"""
+    #     pass
 
     def socket(self):
         "return socket"

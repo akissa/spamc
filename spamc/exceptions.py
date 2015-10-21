@@ -36,3 +36,13 @@ class SpamCTimeOutError(SpamCError):
 class SpamCBrokenSockError(SpamCError):
     """Broken socket Exceptions"""
     pass
+
+
+class SpamCConnError(SpamCError):
+    """Connection Pool Exceptions"""
+    pass
+
+
+class SpamCResponseError(SpamCError):
+    """Invalid Response Exceptions"""
+    pass

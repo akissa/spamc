@@ -1,0 +1,4 @@
+nose
+coverage
+socketpool
+http-parser

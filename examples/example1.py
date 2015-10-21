@@ -37,6 +37,16 @@ def runit():
                       dest='server',
                       type='str',
                       default='standalone.home.topdog-software.com')
+    parser.add_option('-p', '--port',
+                      help='The spamassassin spamd server port',
+                      dest='port',
+                      type='int',
+                      default=783)
+    parser.add_option(
+        '-u', '--unix-socket',
+        help='The unix socket',
+        dest='socket_path',
+        type='str')
     parser.add_option('-t', '--tls',
                       help='Use TLS',
                       dest='tls',
@@ -46,7 +56,15 @@ def runit():
     sslopts = {}
     if options.tls:
         sslopts = dict(ssl_version=PROTOCOL_TLSv1)
-    client = SpamC(options.server, user='exim', is_ssl=options.tls, **sslopts)
+    if options.socket_path and os.path.exists(options.socket_path):
+        options.server = None
+    client = SpamC(
+        options.server,
+        port=options.port,
+        socket_file=options.socket_path,
+        user='exim',
+        is_ssl=options.tls,
+        **sslopts)
     pprint.pprint(client.ping())
     path = os.path.dirname(__file__)
     for test in FILES:

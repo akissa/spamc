@@ -27,3 +27,4 @@ from spamc.version import version_info, __version__
 
 assert SpamC
 assert version_info
+assert __version__

@@ -36,6 +36,7 @@ def return_session(backend_name, **options):
         connection = SpamCUnixConnector
     else:
         connection = SpamCTcpConnector
+    local_name = "%s-%s" % (backend_name, connection.__name__)
 
     del options['host']
 
@@ -43,13 +44,13 @@ def return_session(backend_name, **options):
         _default_session = {}
         pool = ConnectionPool(factory=connection,
                               backend=backend_name, **options)
-        _default_session[backend_name] = pool
+        _default_session[local_name] = pool
     else:
-        if backend_name not in _default_session:
+        if local_name not in _default_session:
             pool = ConnectionPool(factory=connection,
                                   backend=backend_name, **options)
 
-            _default_session[backend_name] = pool
+            _default_session[local_name] = pool
         else:
             pool = _default_session.get(backend_name)
     return pool
@@ -67,13 +68,14 @@ def set_session(backend_name, **options):
         connection = SpamCUnixConnector
     else:
         connection = SpamCTcpConnector
+    local_name = "%s-%s" % (backend_name, connection.__name__)
 
     del options['host']
 
-    if backend_name in _default_session:
-        pool = _default_session.get(backend_name)
+    if local_name in _default_session:
+        pool = _default_session.get(local_name)
     else:
         pool = ConnectionPool(factory=connection,
                               backend=backend_name, **options)
-        _default_session[backend_name] = pool
+        _default_session[local_name] = pool
     return pool

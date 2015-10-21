@@ -29,7 +29,8 @@ from email.parser import Parser
 from http_parser.reader import SocketReader
 
 from spamc.session import return_session
-from spamc.exceptions import SpamCError, SpamCTimeOutError
+from spamc.exceptions import SpamCError, SpamCTimeOutError, SpamCConnError, \
+    SpamCResponseError
 from spamc.regex import RESPONSE_RE, SPAM_RE, PART_RE, RULE_RE, SPACE_RE
 
 PROTOCOL_VERSION = 'SPAMC/1.5'
@@ -58,7 +59,8 @@ def get_response(cmd, conn):
         if index == 0:
             match = RESPONSE_RE.match(line)
             if not match:
-                raise ValueError('spamd unrecognized response: %s' % line)
+                raise SpamCResponseError(
+                    'spamd unrecognized response: %s' % line)
             resp_dict.update(match.groupdict())
             resp_dict['code'] = int(resp_dict['code'])
         else:
@@ -146,13 +148,16 @@ class SpamC(object):
         """Gets a connection from the pool or creates a new connection"""
         conn = None
         if not conn:
-            if self.host is not None:
-                conn = self._pool.get(host=self.host, port=self.port,
-                                      pool=self._pool, is_ssl=self.is_ssl,
-                                      **self.ssl_args)
-            else:
-                conn = self._pool.get(socket_file=self.socket_file,
-                                      pool=self._pool)
+            try:
+                if self.host is not None:
+                    conn = self._pool.get(host=self.host, port=self.port,
+                                          pool=self._pool, is_ssl=self.is_ssl,
+                                          **self.ssl_args)
+                else:
+                    conn = self._pool.get(socket_file=self.socket_file,
+                                          pool=self._pool)
+            except AttributeError:
+                raise SpamCConnError('Connection failed')
         return conn
 
     def get_headers(self, cmd, msg_length, extra_headers):

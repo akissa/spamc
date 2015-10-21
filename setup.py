@@ -49,11 +49,13 @@ def get_readme():
 # pylint: disable-msg=W0142
 def main():
     """Main"""
-    lic = ('License :: OSI Approved :: GNU Affero '
-    'General Public License v3 or later (AGPLv3+)')
+    lic = (
+        'License :: OSI Approved :: GNU Affero '
+        'General Public License v3 or later (AGPLv3+)')
     version = load_source("version", os.path.join("spamc", "version.py"))
 
-    opts = dict(name="spamc",
+    opts = dict(
+        name="spamc",
         version=version.__version__,
         description="Python spamassassin spamc client library",
         long_description=get_readme(),
@@ -65,7 +67,7 @@ def main():
         packages=find_packages(exclude=['tests']),
         include_package_data=True,
         zip_safe=False,
-        tests_require=['mock', 'nose'],
+        tests_require=['nose'],
         install_requires=['socketpool', 'http-parser'],
         classifiers=[
             'Development Status :: 3 - Alpha',
@@ -76,8 +78,7 @@ def main():
             'Intended Audience :: Developers',
             lic,
             'Natural Language :: English',
-            'Operating System :: OS Independent'],
-            )
+            'Operating System :: OS Independent'],)
     setup(**opts)
 
 
