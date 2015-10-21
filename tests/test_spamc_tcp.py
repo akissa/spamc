@@ -1,5 +1,5 @@
 import os
-import unittest
+import unittest2
 import threading
 
 from mimetools import Message
@@ -10,7 +10,7 @@ from spamc.exceptions import SpamCConnError
 from _s import return_tcp
 
 
-class TestSpamCTCP(unittest.TestCase):
+class TestSpamCTCP(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
