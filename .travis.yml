@@ -5,8 +5,7 @@ python:
 install:
     - pip install -r requirements_dev.txt --use-mirrors
     - python setup.py install
-sudo:
-    - required
+sudo: false
 script: python setup.py nosetests
 before_install:
   - pip install codecov
