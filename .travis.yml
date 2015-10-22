@@ -8,6 +8,10 @@ install:
 sudo:
     - required
 script: python setup.py nosetests
+before_install:
+  - pip install codecov
+after_success:
+  - codecov
 branches:
     only:
         - master
