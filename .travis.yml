@@ -7,9 +7,7 @@ install:
     - python setup.py install
 sudo: required
 env:
-    - SPAMD_HOST=127.0.0.1
-    - SPAMD_PORT=783
-    - SPAMD_SOCK=/var/run/exim4/spamd.sock
+    - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783 SPAMD_SOCK=/var/run/exim4/spamd.sock
 script: python setup.py nosetests
 before_script:
     - sudo apt-get update -qq
