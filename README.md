@@ -12,7 +12,7 @@ is thread safe, reuses connections and supports streaming.
 
 [![Build Status](https://travis-ci.org/akissa/spamc.svg)](https://travis-ci.org/akissa/spamc)
 [![Code Climate](https://codeclimate.com/github/akissa/spamc/badges/gpa.svg)](https://codeclimate.com/github/akissa/spamc)
-[![Test Coverage](https://codeclimate.com/github/akissa/spamc/badges/coverage.svg)](https://codeclimate.com/github/akissa/spamc/coverage)
+[![codecov.io](https://codecov.io/github/akissa/spamc/coverage.svg?branch=master)](https://codecov.io/github/akissa/spamc?branch=master)
 
 
 ## Installation
