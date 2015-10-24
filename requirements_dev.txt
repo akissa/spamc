@@ -1,5 +1,4 @@
 nose
 coverage
 unittest2
-socketpool
-http-parser
+importlib

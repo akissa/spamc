@@ -24,14 +24,14 @@ import errno
 import types
 import socket
 
+from mimetools import Message
 from email.parser import Parser
 
-from http_parser.reader import SocketReader
+from spamc.utils import load_backend
+from spamc.conn import SpamCTcpConnector, SpamCUnixConnector
 
-from spamc.session import return_session
-from spamc.exceptions import SpamCError, SpamCTimeOutError, SpamCConnError, \
-    SpamCResponseError
 from spamc.regex import RESPONSE_RE, SPAM_RE, PART_RE, RULE_RE, SPACE_RE
+from spamc.exceptions import SpamCError, SpamCTimeOutError, SpamCResponseError
 
 PROTOCOL_VERSION = 'SPAMC/1.5'
 
@@ -39,7 +39,7 @@ PROTOCOL_VERSION = 'SPAMC/1.5'
 # pylint: disable=R0912,R0915
 def get_response(cmd, conn):
     """Return a response"""
-    resp = SocketReader(conn.socket())
+    resp = conn.socket().makefile('rb', -1)
     resp_dict = dict(
         code=0,
         message='',
@@ -48,11 +48,75 @@ def get_response(cmd, conn):
         basescore=0.0,
         report=[],
         symbols=[],
-        headers=[],
+        headers={},
     )
     if cmd == 'TELL':
         resp_dict['didset'] = False
         resp_dict['didremove'] = False
+    # header = resp.readline(65537)
+    # if len(header) > 65536:
+    #     raise SpamCResponseError('spamd unrecognized response: %s' % header)
+    # header = header.rstrip('\r\n')
+    # words = header.split()
+    # if len(words) == 3:
+    #     version, code, literal_code = words
+    #     if version[:6] != 'SPAMD/':
+    #         raise SpamCResponseError("Bad request version (%r)" % version)
+    #     try:
+    #         base_version_number = version.split('/', 1)[1]
+    #         version_number = base_version_number.split(".")
+    #         if len(version_number) != 2:
+    #             raise ValueError
+    #         version_number = int(version_number[0]), int(version_number[1])
+    #     except (ValueError, IndexError):
+    #         raise SpamCResponseError("Bad request version (%r)" % version)
+    #     if version_number >= (1, 6):
+    #         raise SpamCResponseError(
+    #             "Invalid SPAMD Version (%s)" % base_version_number)
+    # else:
+    #     raise SpamCResponseError('spamd unrecognized response: %s' % header)
+    # headers = Message(resp, 0)
+    # match = RESPONSE_RE.match(header)
+    # resp_dict.update(match.groupdict())
+    # resp_dict['code'] = int(resp_dict['code'])
+    # if cmd in [
+    #         'CHECK', 'HEADERS', 'PROCESS',
+    #         'REPORT', 'REPORT_IFSPAM', 'SYMBOLS']:
+    #     match = SPAM_RE.match(headers.get('Spam'))
+    #     if match:
+    #         tmp = match.groupdict()
+    #         resp_dict['score'] = float(tmp['score'])
+    #         resp_dict['basescore'] = float(tmp['basescore'])
+    #         resp_dict['isspam'] = tmp['isspam'] in ['True', 'Yes']
+    # # § headers.get_payload()
+    # if 'DidSet' in headers:
+    #     resp_dict['didset'] = True
+    # if 'DidRemove' in headers:
+    #     resp_dict['didremove'] = True
+    # for line in resp:
+    #     if line.strip() == '':
+    #         # loc = resp.tell()
+    #         break
+    # content_length = int(headers.get('Content-length', 0))
+    # # resp.seek(loc)
+    # if cmd == 'SYMBOLS':
+    #     body = resp.read(content_length)
+    #     match = PART_RE.findall(body)
+    #     for part in match:
+    #         resp_dict['symbols'].append(part)
+    # if cmd == 'PROCESS':
+    #     body = resp.read(content_length)
+    #     resp_dict['message'] = body
+    # if cmd == 'HEADERS':
+    #     body = resp.read(content_length)
+    #     resp_dict['headers'] = []
+    #     parser = Parser()
+    #     headers = parser.parsestr(body, headersonly=True)
+    #     for item in headers.items():
+    #         resp_dict['headers'].append("%s: %s" % item)
+    # print resp_dict
+    # return resp_dict
+    # print headers
     data = resp.read()
     lines = data.split('\r\n')
     for index, line in enumerate(lines):
@@ -60,7 +124,7 @@ def get_response(cmd, conn):
             match = RESPONSE_RE.match(line)
             if not match:
                 raise SpamCResponseError(
-                    'spamd unrecognized response: %s' % line)
+                    'spamd unrecognized response: %s' % data)
             resp_dict.update(match.groupdict())
             resp_dict['code'] = int(resp_dict['code'])
         else:
@@ -95,11 +159,10 @@ def get_response(cmd, conn):
     if cmd == 'PROCESS':
         resp_dict['message'] = ''.join(lines[4:]) + '\r\n'
     if cmd == 'HEADERS':
-        resp_dict['headers'] = []
         parser = Parser()
         headers = parser.parsestr('\r\n'.join(lines[4:]), headersonly=True)
-        for item in headers.items():
-            resp_dict['headers'].append("%s: %s" % item)
+        for key in headers.keys():
+            resp_dict['headers'][key] = headers[key]
     return resp_dict
 
 
@@ -113,31 +176,24 @@ class SpamC(object):
                  port=783,
                  socket_file='/var/run/spamassassin/spamd.sock',
                  user=None,
-                 pool=None,
                  timeout=None,
                  wait_tries=0.3,
                  max_tries=3,
-                 pool_size=10,
                  backend="thread",
                  is_ssl=None,
                  **ssl_args):
         """Init"""
-        session_opts = dict(
-            timeout=timeout,
-            max_size=pool_size,
-            retry_delay=wait_tries,
-            retry_max=max_tries,
-            host=host,
-        )
-        if pool is None:
-            pool = return_session(backend, **session_opts)
         self.host = host
         self.port = port
         self.socket_file = socket_file
         self.user = user
-        self.backend = backend
-        self._pool = pool
-        self.pool_size = pool_size
+        if isinstance(backend, str):
+            self.backend_mod = load_backend(backend)
+            # self.backend = backend
+        else:
+            self.backend_mod = backend
+            # self.backend = str(getattr(backend, '__name__', backend))
+        # self.backend = backend
         self.max_tries = max_tries
         self.wait_tries = wait_tries
         self.timeout = timeout
@@ -145,19 +201,18 @@ class SpamC(object):
         self.ssl_args = ssl_args or {}
 
     def get_connection(self):
-        """Gets a connection from the pool or creates a new connection"""
-        conn = None
-        if not conn:
-            try:
-                if self.host is not None:
-                    conn = self._pool.get(host=self.host, port=self.port,
-                                          pool=self._pool, is_ssl=self.is_ssl,
-                                          **self.ssl_args)
-                else:
-                    conn = self._pool.get(socket_file=self.socket_file,
-                                          pool=self._pool)
-            except AttributeError:
-                raise SpamCConnError('Connection failed')
+        """Creates a new connection"""
+        if self.host is None:
+            connector = SpamCUnixConnector
+            conn = connector(self.socket_file, self.backend_mod)
+        else:
+            connector = SpamCTcpConnector
+            conn = connector(
+                self.host,
+                self.port,
+                self.backend_mod,
+                is_ssl=self.is_ssl,
+                **self.ssl_args)
         return conn
 
     def get_headers(self, cmd, msg_length, extra_headers):
@@ -207,14 +262,18 @@ class SpamC(object):
                     else:
                         conn.send(msg)
                 conn.send('\r\n')
+                try:
+                    conn.socket().shutdown(socket.SHUT_WR)
+                except socket.error:
+                    pass
                 return get_response(cmd, conn)
             except socket.gaierror, err:
                 if conn is not None:
-                    conn.release(True)
+                    conn.release()
                 raise SpamCError(str(err))
             except socket.timeout, err:
                 if conn is not None:
-                    conn.release(True)
+                    conn.release()
                 raise SpamCTimeOutError(str(err))
             except socket.error, err:
                 if conn is not None:
@@ -225,10 +284,10 @@ class SpamC(object):
                     raise SpamCError("socket.error: %s" % str(err))
             except BaseException:
                 if conn is not None:
-                    conn.release(True)
+                    conn.release()
                 raise
             tries += 1
-            self._pool.backend_mod.sleep(self.wait_tries)
+            self.backend_mod.sleep(self.wait_tries)
 
     def check(self, msg):
         """Check if the passed message is spam or not"""

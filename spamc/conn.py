@@ -20,36 +20,102 @@ spamc: Python spamassassin spamc client library
 connections
 """
 import ssl
-import time
-import random
 import socket
-
-from socketpool.conn import TcpConnector, Connector
 
 from spamc.utils import is_connected
 
 CHUNK_SIZE = 16 * 1024
 
 
-class SpamCTcpConnector(TcpConnector):
-    """SpamCTcpConnector"""
-    # pylint: disable=R0913
+class SpamCUnixConnector(object):
+    """UnixConnector"""
 
-    def __init__(self, host, port, backend_mod, pool=None,
-                 is_ssl=False, **ssl_args):
-        super(SpamCTcpConnector, self).__init__(host, port, backend_mod,
-                                                pool)
+    def __init__(self, socket_file, backend_mod):
+        # pylint: disable=invalid-name
+        self._s = backend_mod.Socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket_file = socket_file
+        self._s.connect(self.socket_file)
+        self.backend_mod = backend_mod
+        self._connected = True
+
+    def socket(self):
+        "return socket"
+        return self._s
+
+    def is_connected(self):
+        "is connected"
+        if self._connected:
+            return is_connected(self._s)
+        return False
+
+    def invalidate(self):
+        "invalidate"
+        self.close()
+        self._connected = False
+
+    def release(self):
+        """release"""
+        if self._connected:
+            self.invalidate()
+
+    def send(self, data):
+        """Send data"""
+        return self._s.sendall(data)
+
+    def recv(self, size=1024):
+        "recv"
+        return self._s.recv(size)
+
+    def close(self):
+        """close conn"""
+        if not self._s or not hasattr(self._s, "close"):
+            return
+        try:
+            self._s.close()
+        except BaseException:
+            pass
+
+    def sendfile(self, data):
+        """Send data from a file object"""
+        if hasattr(data, 'seek'):
+            data.seek(0)
+
+        while 1:
+            binarydata = data.read(CHUNK_SIZE)
+            if binarydata == '':
+                break
+            self.send(binarydata)
+
+
+class SpamCTcpConnector(object):
+    """SpamCTcpConnector"""
+
+    def __init__(self, host, port, backend_mod, is_ssl=False, **ssl_args):
+        # pylint: disable=invalid-name
+        self._s = backend_mod.Socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._s.connect((host, port))
+        self.host = host
+        self.port = port
+        self.backend_mod = backend_mod
+        self._connected = True
         if is_ssl:
             self._s = ssl.wrap_socket(self._s, **ssl_args)
         self.is_ssl = is_ssl
 
-    # def __del__(self):
-    #     """override delete"""
-    #     pass
+    def __del__(self):
+        "del"
+        self.release()
 
-    def handle_exception(self, exception):
-        """Raise exceptions"""
-        raise
+    def release(self):
+        """release"""
+        if hasattr(self, '_connected') and self._connected:
+            self.invalidate()
+
+    def is_connected(self):
+        """Check connection status"""
+        if self._connected:
+            return is_connected(self._s)
+        return False
 
     def socket(self):
         """return socket"""
@@ -65,113 +131,17 @@ class SpamCTcpConnector(TcpConnector):
             pass
 
     def invalidate(self):
-        """invalidate"""
-        self.close()
+        "close"
+        self._s.close()
         self._connected = False
-        self._life = -1
-
-    # pylint: disable=arguments-differ
-    def release(self, should_close=False):
-        """release"""
-        if self._pool is not None:
-            if self._connected:
-                if should_close:
-                    self.invalidate()
-                self._pool.release_connection(self)
-            else:
-                self._pool = None
-        elif self._connected:
-            self.invalidate()
 
     def send(self, data):
-        """Send data"""
+        "send data"
         return self._s.sendall(data)
 
-    def sendfile(self, data):
-        """Send data from a file object"""
-        if hasattr(data, 'seek'):
-            data.seek(0)
-
-        while 1:
-            binarydata = data.read(CHUNK_SIZE)
-            if binarydata == '':
-                break
-            self.send(binarydata)
-
-
-class SpamCUnixConnector(Connector):
-    """UnixConnector"""
-
-    def __init__(self, socket_file, backend_mod, pool=None):
-        self._sock = backend_mod.Socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.socket_file = socket_file
-        self._sock.connect(self.socket_file)
-        self.backend_mod = backend_mod
-        self._connected = True
-        self._life = time.time() - random.randint(0, 10)
-        self._pool = pool
-
-    # def __del__(self):
-    #     """override"""
-    #     pass
-
-    def socket(self):
-        "return socket"
-        return self._sock
-
-    def matches(self, **match_options):
-        "matches"
-        target_sock = match_options.get('socket_file')
-        return target_sock == self.socket_file
-
-    def is_connected(self):
-        "is connected"
-        if self._connected:
-            return is_connected(self._sock)
-        return False
-
-    def handle_exception(self, exception):
-        "handle exception"
-        raise exception
-
-    def get_lifetime(self):
-        "get lifetime"
-        return self._life
-
-    def invalidate(self):
-        "invalidate"
-        self.close()
-        self._connected = False
-        self._life = -1
-
-    def release(self, should_close=False):
-        """release"""
-        if self._pool is not None:
-            if self._connected:
-                if should_close:
-                    self.invalidate()
-                self._pool.release_connection(self)
-            else:
-                self._pool = None
-        elif self._connected:
-            self.invalidate()
-
-    def send(self, data):
-        """Send data"""
-        return self._sock.sendall(data)
-
     def recv(self, size=1024):
-        "recv"
-        return self._sock.recv(size)
-
-    def close(self):
-        """close conn"""
-        if not self._sock or not hasattr(self._sock, "close"):
-            return
-        try:
-            self._sock.close()
-        except BaseException:
-            pass
+        "receive data"
+        return self._s.recv(size)
 
     def sendfile(self, data):
         """Send data from a file object"""

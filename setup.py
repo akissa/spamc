@@ -68,7 +68,7 @@ def main():
         include_package_data=True,
         zip_safe=False,
         tests_require=['nose'],
-        install_requires=['socketpool', 'http-parser'],
+        install_requires=['importlib'],
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python',
