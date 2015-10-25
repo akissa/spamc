@@ -22,85 +22,20 @@ connections
 import ssl
 import socket
 
+from zlib import compressobj
+
 from spamc.utils import is_connected
 
+BLOCK_SIZE = 64
 CHUNK_SIZE = 16 * 1024
 
 
-class SpamCUnixConnector(object):
-    """UnixConnector"""
-
-    def __init__(self, socket_file, backend_mod):
+class Connector(object):
+    """Base class for our connectors"""
+    def __init__(self):
         # pylint: disable=invalid-name
-        self._s = backend_mod.Socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.socket_file = socket_file
-        self._s.connect(self.socket_file)
-        self.backend_mod = backend_mod
-        self._connected = True
-
-    def socket(self):
-        "return socket"
-        return self._s
-
-    def is_connected(self):
-        "is connected"
-        if self._connected:
-            return is_connected(self._s)
-        return False
-
-    def invalidate(self):
-        "invalidate"
-        self.close()
+        self._s = None
         self._connected = False
-
-    def release(self):
-        """release"""
-        if self._connected:
-            self.invalidate()
-
-    def send(self, data):
-        """Send data"""
-        return self._s.sendall(data)
-
-    def recv(self, size=1024):
-        "recv"
-        return self._s.recv(size)
-
-    def close(self):
-        """close conn"""
-        if not self._s or not hasattr(self._s, "close"):
-            return
-        try:
-            self._s.close()
-        except BaseException:
-            pass
-
-    def sendfile(self, data):
-        """Send data from a file object"""
-        if hasattr(data, 'seek'):
-            data.seek(0)
-
-        while 1:
-            binarydata = data.read(CHUNK_SIZE)
-            if binarydata == '':
-                break
-            self.send(binarydata)
-
-
-class SpamCTcpConnector(object):
-    """SpamCTcpConnector"""
-
-    def __init__(self, host, port, backend_mod, is_ssl=False, **ssl_args):
-        # pylint: disable=invalid-name
-        self._s = backend_mod.Socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._s.connect((host, port))
-        self.host = host
-        self.port = port
-        self.backend_mod = backend_mod
-        self._connected = True
-        if is_ssl:
-            self._s = ssl.wrap_socket(self._s, **ssl_args)
-        self.is_ssl = is_ssl
 
     def __del__(self):
         "del"
@@ -143,13 +78,60 @@ class SpamCTcpConnector(object):
         "receive data"
         return self._s.recv(size)
 
-    def sendfile(self, data):
+    def sendfile(self, data, zlib_compress=None, compress_level=6):
         """Send data from a file object"""
         if hasattr(data, 'seek'):
             data.seek(0)
 
+        chunk_size = CHUNK_SIZE
+
+        if zlib_compress:
+            chunk_size = BLOCK_SIZE
+            compressor = compressobj(compress_level)
+
         while 1:
-            binarydata = data.read(CHUNK_SIZE)
+            binarydata = data.read(chunk_size)
             if binarydata == '':
                 break
+            if zlib_compress:
+                binarydata = compressor.compress(binarydata)
+                if not binarydata:
+                    continue
             self.send(binarydata)
+
+        if zlib_compress:
+            remaining = compressor.flush()
+            while remaining:
+                binarydata = remaining[:BLOCK_SIZE]
+                remaining = remaining[BLOCK_SIZE:]
+                self.send(binarydata)
+
+
+class SpamCUnixConnector(Connector):
+    """UnixConnector"""
+
+    def __init__(self, socket_file, backend_mod):
+        # pylint: disable=invalid-name
+        super(SpamCUnixConnector, self).__init__()
+        self._s = backend_mod.Socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket_file = socket_file
+        self._s.connect(self.socket_file)
+        self.backend_mod = backend_mod
+        self._connected = True
+
+
+class SpamCTcpConnector(Connector):
+    """SpamCTcpConnector"""
+
+    def __init__(self, host, port, backend_mod, is_ssl=False, **ssl_args):
+        # pylint: disable=invalid-name
+        super(SpamCTcpConnector, self).__init__()
+        self._s = backend_mod.Socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._s.connect((host, port))
+        self.host = host
+        self.port = port
+        self.backend_mod = backend_mod
+        self._connected = True
+        if is_ssl:
+            self._s = ssl.wrap_socket(self._s, **ssl_args)
+        self.is_ssl = is_ssl

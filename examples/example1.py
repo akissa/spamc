@@ -33,18 +33,18 @@ def runit():
     """run things"""
     parser = OptionParser()
     parser.add_option('-s', '--server',
-                      help='The spamassassin spamd server',
+                      help='The spamassassin spamd server to connect to',
                       dest='server',
                       type='str',
                       default='standalone.home.topdog-software.com')
     parser.add_option('-p', '--port',
-                      help='The spamassassin spamd server port',
+                      help='The spamassassin spamd server port to connect to',
                       dest='port',
                       type='int',
                       default=783)
     parser.add_option(
         '-u', '--unix-socket',
-        help='The unix socket',
+        help='The spamassassin spamd unix socket to connect to',
         dest='socket_path',
         type='str')
     parser.add_option('-t', '--tls',
@@ -52,6 +52,23 @@ def runit():
                       dest='tls',
                       action='store_true',
                       default=False)
+    parser.add_option('-z', '--use-zlib-compression',
+                      help='Use Zlib compression',
+                      dest='gzip',
+                      action='store_true',
+                      default=False)
+    parser.add_option('-l', '--zlib-compression-level',
+                      help='Zlib compression level',
+                      dest='compress_level',
+                      type='choice',
+                      choices=[str(val) for val in range(0, 10)],
+                      default=6)
+    parser.add_option('-a', '--user',
+                      help=('''Username of the user on whose behalf'''
+                            '''this scan is being performed'''),
+                      dest='user',
+                      type='str',
+                      default='exim')
     options, _ = parser.parse_args()
     sslopts = {}
     if options.tls:
@@ -62,7 +79,9 @@ def runit():
         options.server,
         port=options.port,
         socket_file=options.socket_path,
-        user='exim',
+        user=options.user,
+        gzip=options.gzip,
+        compress_level=int(options.compress_level),
         is_ssl=options.tls,
         **sslopts)
     pprint.pprint(client.ping())

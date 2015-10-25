@@ -3,7 +3,7 @@
 
 ## Python spamassassin spamc client library
 
-spamc is a python module that provides all the client side functionality of the
+spamc is a python module that provides fully compliant client side functionality of the
 [spamassassin](https://spamassassin.apache.org)
 [spamd protocol](https://github.com/apache/spamassassin/blob/trunk/spamd/PROTOCOL)
 
@@ -29,7 +29,27 @@ Install from Githib
 
 ## Usage
 
-Examples are in the examples directory
+Examples are in the [examples](https://github.com/akissa/spamc/tree/master/examples/) directory
+
+```bash
+$ ./examples/example1.py -h
+Usage: example1.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -s SERVER, --server=SERVER
+                        The spamassassin spamd server to connect to
+  -p PORT, --port=PORT  The spamassassin spamd server port to connect to
+  -u SOCKET_PATH, --unix-socket=SOCKET_PATH
+                        The spamassassin spamd unix socket to connect to
+  -t, --tls             Use TLS
+  -z, --use-zlib-compression
+                        Use Zlib compression
+  -l COMPRESS_LEVEL, --zlib-compression-level=COMPRESS_LEVEL
+                        Zlib compression level
+  -a USER, --user=USER  Username of the user on whose behalfthis scan is being
+                        performed
+```
 
 ## Contributing
 

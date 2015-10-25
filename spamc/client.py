@@ -24,7 +24,8 @@ import errno
 import types
 import socket
 
-from mimetools import Message
+from zlib import compress
+# from mimetools import Message
 from email.parser import Parser
 
 from spamc.utils import load_backend
@@ -180,6 +181,8 @@ class SpamC(object):
                  wait_tries=0.3,
                  max_tries=3,
                  backend="thread",
+                 gzip=None,
+                 compress_level=6,
                  is_ssl=None,
                  **ssl_args):
         """Init"""
@@ -197,6 +200,8 @@ class SpamC(object):
         self.max_tries = max_tries
         self.wait_tries = wait_tries
         self.timeout = timeout
+        self.gzip = gzip
+        self.compress_level = compress_level
         self.is_ssl = is_ssl
         self.ssl_args = ssl_args or {}
 
@@ -223,6 +228,8 @@ class SpamC(object):
         if self.user:
             user_header = "User: %s" % self.user
             headers.append(user_header)
+        if self.gzip:
+            headers.append("Compress: zlib")
         if extra_headers is not None:
             for key in extra_headers:
                 if key.lower() != 'content-length':
@@ -252,14 +259,18 @@ class SpamC(object):
                 headers = self.get_headers(cmd, msg_length, extra_headers)
                 # print headers
                 if isinstance(msg, types.StringTypes):
+                    if self.gzip and msg:
+                        msg = compress(msg, self.compress_level)
                     conn.send(headers + msg + '\r\n')
                 else:
                     conn.send(headers)
                     if hasattr(msg, 'read'):
                         if hasattr(msg, 'seek'):
                             msg.seek(0)
-                        conn.sendfile(msg)
+                        conn.sendfile(msg, self.gzip, self.compress_level)
                     else:
+                        if self.gzip:
+                            msg = compress(msg, self.compress_level)
                         conn.send(msg)
                 conn.send('\r\n')
                 try:

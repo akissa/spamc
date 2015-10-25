@@ -23,7 +23,9 @@ class TestSpamCTCP(unittest2.TestCase):
             cls.using_sa = False
         cls.spamc_tcp = SpamC(
             host=os.environ.get('SPAMD_HOST', '127.0.0.1'),
-            port=int(os.environ.get('SPAMD_PORT', 10000)))
+            port=int(os.environ.get('SPAMD_PORT', 10000)),
+            gzip=os.environ.get('SPAMD_COMPRESS', None),
+            compress_level=int(os.environ.get('SPAMD_COMPRESS_LEVEL', 6)))
         path = os.path.dirname(os.path.dirname(__file__))
         cls.filename = os.path.join(path, 'examples', 'sample-spam.txt')
 
