@@ -42,11 +42,10 @@ def runit():
                       dest='port',
                       type='int',
                       default=783)
-    parser.add_option(
-        '-u', '--unix-socket',
-        help='The spamassassin spamd unix socket to connect to',
-        dest='socket_path',
-        type='str')
+    parser.add_option('-u', '--unix-socket',
+                      help='The spamassassin spamd unix socket to connect to',
+                      dest='socket_path',
+                      type='str')
     parser.add_option('-t', '--tls',
                       help='Use TLS',
                       dest='tls',
