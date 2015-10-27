@@ -9,6 +9,7 @@ install:
 sudo: required
 env:
     - SPAMD_SOCK=/var/run/exim4/spamd.sock
+    - SPAMD_SOCK=
 script: python setup.py nosetests
 before_script:
     - sudo apt-get update -qq
