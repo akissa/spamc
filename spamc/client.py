@@ -37,6 +37,16 @@ from spamc.exceptions import SpamCError, SpamCTimeOutError, SpamCResponseError
 PROTOCOL_VERSION = 'SPAMC/1.5'
 
 
+def _check_action(action):
+    """check for invalid actions"""
+    if isinstance(action, types.StringTypes):
+        action = action.lower()
+
+    if action not in ['learn', 'forget', 'report', 'revoke']:
+        raise SpamCError('The action option is invalid')
+    return action
+
+
 # pylint: disable=R0912,R0915
 def get_response(cmd, conn):
     """Return a response"""
@@ -335,12 +345,7 @@ class SpamC(object):
         """Tell what type of we are to process and what should be done
         with that message. This includes setting or removing a local
         or a remote database (learning, reporting, forgetting, revoking)."""
-        if isinstance(action, types.StringTypes):
-            action = action.lower()
-
-        if action not in ['learn', 'forget', 'report', 'revoke']:
-            raise SpamCError('The action option is invalid')
-
+        action = _check_action(action)
         mode = learnas.upper()
 
         headers = {
@@ -365,8 +370,6 @@ class SpamC(object):
         elif action == 'revoke':
             headers['Message-class'] = 'ham'
             headers['Remove'] = 'remote'
-        else:
-            raise SpamCError('The action option is invalid')
         return self.perform('TELL', msg, headers)
 
     def learn(self, msg, learnas):
