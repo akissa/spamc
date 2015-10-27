@@ -3,6 +3,7 @@ import unittest2
 import threading
 
 from mimetools import Message
+from cStringIO import StringIO
 
 from spamc import SpamC
 from spamc.exceptions import SpamCError
@@ -30,15 +31,19 @@ class TestSpamCUnix(unittest2.TestCase):
     def tearDownClass(cls):
         if hasattr(cls, 'tcp_server'):
             cls.unix_server.shutdown()
-        # if os.path.exists('spamd.sock'):
-        #     try:
-        #         os.remove('spamd.sock')
-        #     except OSError:
-        #         pass
+        if os.path.exists('spamd.sock'):
+            try:
+                os.remove('spamd.sock')
+            except OSError:
+                pass
 
     def test_spamc_unix_no_conn(self):
         spamc_unix = SpamC(socket_file='no-exist-spamd.sock')
         self.assertRaises(SpamCError, spamc_unix.ping)
+
+    def test_spamc_unix_invalid_action(self):
+        with open(self.filename) as handle:
+            self.assertRaises(SpamCError, self.spamc_unix.tell, handle, 'mojo')
 
     def test_spamc_unix_ping(self):
         result = self.spamc_unix.ping()
@@ -81,15 +86,20 @@ class TestSpamCUnix(unittest2.TestCase):
         with open(self.filename) as handle:
             result = self.spamc_unix.process(handle)
         self.assertIn('message', result)
-        # self.assertEqual(
-        #     open(self.filename).read() + '\r\n',
-        #     result['message'])
+        with open(self.filename) as headerhandle:
+            headers1 = Message(headerhandle)
+        headers2 = Message(StringIO(result['message']))
+        self.assertEqual(
+            headers1.get('Subject'),
+            headers2.get('Subject')
+        )
 
     def test_spamc_unix_headers(self):
         with open(self.filename) as handle:
             result = self.spamc_unix.headers(handle)
         self.assertIn('message', result)
-        headers = Message(open(self.filename))
+        with open(self.filename) as headerhandle:
+            headers = Message(headerhandle)
         org_subject = "Subject: %s" % headers.get('Subject')
         new_subject = "Subject: %s" % result['headers'].get('Subject')
         self.assertEqual(org_subject, new_subject)
