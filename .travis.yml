@@ -8,12 +8,12 @@ install:
     - python setup.py install
 sudo: required
 env:
+    - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783
     - SPAMD_SOCK=/var/run/spamd.sock
     - SPAMD_SOCK=
 script: python setup.py nosetests
 before_script:
     - sudo apt-get update -qq
-    - sudo apt-get install exim4-daemon-light
     - sudo apt-get install spamassassin
     - echo 'ENABLED=1' | sudo tee -a /etc/default/spamassassin
     - echo 'OPTIONS="--listen=127.0.0.1 --socketpath=/var/run/spamd.sock --socketmode=0777 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
