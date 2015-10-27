@@ -8,7 +8,7 @@ install:
     - python setup.py install
 sudo: required
 env:
-    - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783
+    # - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783
     - SPAMD_SOCK=/var/run/spamd.sock
     - SPAMD_SOCK=
 script: python setup.py nosetests
