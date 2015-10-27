@@ -3,19 +3,20 @@ python:
     # - 2.6
     - 2.7
 install:
-    - pip install -r requirements_dev.txt
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]] pip install -r requirements/requirements26_dev.txt
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]] pip install -r requirements/requirements27_dev.txt
     - python setup.py install
-# sudo: required
-# env:
-#     - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783 SPAMD_SOCK=/var/run/exim4/spamd.sock
+sudo: required
+env:
+    - SPAMD_SOCK=/var/run/exim4/spamd.sock
 script: python setup.py nosetests
-# before_script:
-#     - sudo apt-get update -qq
-#     - sudo apt-get install exim4-daemon-light
-#     - sudo apt-get install spamassassin
-#     - echo 'ENABLED=1' | sudo tee -a /etc/default/spamassassin
-#     - echo 'OPTIONS="-u Debian-exim -g Debian-exim -x --listen=127.0.0.1 --socketpath=/var/run/exim4/spamd.sock --socketowner=Debian-exim --socketgroup=Debian-exim --socketmode=0770 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
-#     - sudo service spamassassin start
+before_script:
+    - sudo apt-get update -qq
+    - sudo apt-get install exim4-daemon-light
+    - sudo apt-get install spamassassin
+    - echo 'ENABLED=1' | sudo tee -a /etc/default/spamassassin
+    - echo 'OPTIONS="--listen=127.0.0.1 --socketpath=/var/run/spamd.sock --socketmode=0777 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
+    - sudo service spamassassin start
 before_install:
   - pip install codecov
 after_success:

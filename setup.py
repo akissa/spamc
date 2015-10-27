@@ -26,6 +26,13 @@ import os
 from imp import load_source
 from setuptools import setup, find_packages
 
+INSTALL_REQUIRES = []
+
+try:
+    import importlib
+except ImportError:
+    INSTALL_REQUIRES.append('importlib')
+
 
 def get_readme():
     """Generate long description"""
@@ -68,7 +75,7 @@ def main():
         include_package_data=True,
         zip_safe=False,
         tests_require=['nose'],
-        install_requires=['importlib'],
+        install_requires=INSTALL_REQUIRES,
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python',
