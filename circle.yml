@@ -3,7 +3,15 @@ machine:
     version: '2.6.6'
 dependencies:
   pre:
-    - pip install -r requirements_dev.txt
+      - sudo apt-get update -qq
+      - sudo apt-get install spamassassin
+      - echo 'ENABLED=1' | sudo tee -a /etc/default/spamassassin
+      - echo 'OPTIONS="--listen=127.0.0.1 --socketpath=/var/run/spamd.sock --socketmode=0777 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
+      - sudo service spamassassin start
+      - pip install -r requirements/requirements26_dev.txt
 test:
     override:
+        - python setup.py nosetests:
+            environment:
+                SPAMD_SOCK: /var/run/spamd.sock
         - python setup.py nosetests
