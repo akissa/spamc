@@ -14,4 +14,8 @@ test:
         - python setup.py nosetests:
             environment:
                 SPAMD_SOCK: /var/run/spamd.sock
+        - python setup.py nosetests:
+            environment:
+                SPAMD_HOST: 127.0.0.1
+                SPAMD_PORT: 783
         - python setup.py nosetests
