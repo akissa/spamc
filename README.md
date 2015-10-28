@@ -11,7 +11,7 @@ It can be used with [gevent](http://www.gevent.org) and [eventlet](http://www.ev
 is thread safe and supports streaming.
 
 [![Build Status](https://travis-ci.org/akissa/spamc.svg)](https://travis-ci.org/akissa/spamc)
-[![CircleCI Build](https://circleci.com/gh/akissa/spamc)](https://circleci.com/gh/akissa/spamc.svg?style=shield)
+[![CircleCI Build](https://circleci.com/gh/akissa/spamc.svg?style=shield)](https://circleci.com/gh/akissa/spamc)
 [![Code Climate](https://codeclimate.com/github/akissa/spamc/badges/gpa.svg)](https://codeclimate.com/github/akissa/spamc)
 [![codecov.io](https://codecov.io/github/akissa/spamc/coverage.svg?branch=master)](https://codecov.io/github/akissa/spamc?branch=master)
 
