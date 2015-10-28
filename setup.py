@@ -77,7 +77,7 @@ def main():
         tests_require=['nose'],
         install_requires=INSTALL_REQUIRES,
         classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'Programming Language :: Python',
             'Programming Language :: Python :: 2.6',
             'Programming Language :: Python :: 2.7',
