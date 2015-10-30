@@ -3,12 +3,9 @@ python:
     # - 2.6
     - 2.7
 install:
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -r requirements/requirements26_dev.txt; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install -r requirements/requirements27_dev.txt; fi
     - python setup.py install
 sudo: required
 env:
-    # - SPAMD_HOST=127.0.0.1 SPAMD_PORT=783
     - SPAMD_SOCK=/var/run/spamd.sock
     - SPAMD_SOCK=
 script: python setup.py nosetests
@@ -19,9 +16,11 @@ before_script:
     - echo 'OPTIONS="--listen=127.0.0.1 --socketpath=/var/run/spamd.sock --socketmode=0777 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
     - sudo service spamassassin start
 before_install:
-  - pip install codecov
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install -r requirements/requirements26_dev.txt; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install -r requirements/requirements27_dev.txt; fi
+    - pip install codecov
 after_success:
-  - codecov
+    - codecov
 branches:
     only:
         - master
@@ -30,4 +29,4 @@ notifications:
     on_success: change
     on_failure: always
     recipients:
-      - andrew@topdog.za.net
+        - andrew@topdog.za.net
