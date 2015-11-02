@@ -22,15 +22,16 @@ Copyright 2015, Andrew Colin Kissa
 Licensed under AGPLv3+
 """
 import os
+import sys
 
 from imp import load_source
 from setuptools import setup, find_packages
 
+TESTS_REQUIRE = ['nose', 'coverage']
 INSTALL_REQUIRES = []
 
-try:
-    import importlib
-except ImportError:
+if sys.version_info < (2, 7):
+    TESTS_REQUIRE.extend(['unittest2', 'importlib'])
     INSTALL_REQUIRES.append('importlib')
 
 
@@ -53,7 +54,6 @@ def get_readme():
     return long_description
 
 
-# pylint: disable-msg=W0142
 def main():
     """Main"""
     lic = (
@@ -74,7 +74,7 @@ def main():
         packages=find_packages(exclude=['tests']),
         include_package_data=True,
         zip_safe=False,
-        tests_require=['nose'],
+        tests_require=TESTS_REQUIRE,
         install_requires=INSTALL_REQUIRES,
         classifiers=[
             'Development Status :: 4 - Beta',

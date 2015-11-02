@@ -1,7 +1,13 @@
 import os
+import sys
 import socket
 import threading
-import unittest2
+try:
+    import unittest2
+except ImportError:
+    if sys.version_info < (2, 7):
+        raise
+    import unittest as unittest2
 
 from spamc import SpamC
 from spamc.utils import is_connected

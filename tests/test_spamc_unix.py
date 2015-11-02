@@ -1,6 +1,12 @@
 import os
-import unittest2
+import sys
 import threading
+try:
+    import unittest2
+except ImportError:
+    if sys.version_info < (2, 7):
+        raise
+    import unittest as unittest2
 
 from mimetools import Message
 from cStringIO import StringIO
