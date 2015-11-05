@@ -224,16 +224,15 @@ class TestSpamdHandler(StreamRequestHandler):
             self.handle_one_request()
 
 
-def return_tcp():
+def return_tcp(port=10000):
     """Return a tcp SPAMD server"""
-    address = ('127.0.0.1', 10000)
+    address = ('127.0.0.1', port)
     server = ThreadingTCPServer(address, TestSpamdHandler)
     return server
 
 
-def return_unix():
+def return_unix(sock='spamd.sock'):
     """Return a unix SPAMD server"""
-    sock = 'spamd.sock'
     if os.path.exists(sock):
         os.remove(sock)
     server = ThreadingUnixStreamServer(sock, TestSpamdHandler)
