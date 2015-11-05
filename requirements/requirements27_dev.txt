@@ -1,2 +1,5 @@
 nose
+mock
 coverage
+eventlet
+gevent

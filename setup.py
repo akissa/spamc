@@ -27,7 +27,7 @@ import sys
 from imp import load_source
 from setuptools import setup, find_packages
 
-TESTS_REQUIRE = ['nose', 'coverage']
+TESTS_REQUIRE = ['nose', 'coverage', 'mock', 'eventlet', 'gevent']
 INSTALL_REQUIRES = []
 
 if sys.version_info < (2, 7):

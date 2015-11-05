@@ -1,4 +1,7 @@
 nose
+mock
 coverage
 unittest2
 importlib
+eventlet
+gevent
