@@ -1,5 +1,6 @@
 import os
 import sys
+import socket
 import threading
 try:
     import unittest2
@@ -8,11 +9,13 @@ except ImportError:
         raise
     import unittest as unittest2
 
+import mock
+
 from mimetools import Message
 from cStringIO import StringIO
 
 from spamc import SpamC
-from spamc.exceptions import SpamCError
+from spamc.exceptions import SpamCError, SpamCTimeOutError
 
 from _s import return_unix
 
@@ -35,7 +38,7 @@ class TestSpamCUnix(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        if hasattr(cls, 'tcp_server'):
+        if hasattr(cls, 'unix_server'):
             cls.unix_server.shutdown()
         if os.path.exists('spamd.sock'):
             try:
@@ -119,6 +122,10 @@ class TestSpamCUnix(unittest2.TestCase):
             self.assertEqual(True, result['didset'])
             self.assertEqual(False, result['didremove'])
 
+    def test_spamc_unix_learn_error(self):
+        with open(self.filename) as handle:
+            self.assertRaises(SpamCError, self.spamc_unix.learn, handle, {})
+
     def test_spamc_unix_tell(self):
         with open(self.filename) as handle:
             result = self.spamc_unix.tell(handle, 'forget')
@@ -127,6 +134,20 @@ class TestSpamCUnix(unittest2.TestCase):
         if not self.using_sa:
             self.assertEqual(False, result['didset'])
             self.assertEqual(True, result['didremove'])
+
+    def test_spamc_unix_tell_error(self):
+        with open(self.filename) as handle:
+            self.assertRaises(
+                SpamCError,
+                self.spamc_unix.tell,
+                handle,
+                'bogus')
+            self.assertRaises(
+                SpamCError,
+                self.spamc_unix.tell,
+                handle,
+                'learn',
+                'bogus')
 
     def test_spamc_unix_revoke(self):
         print self.spamc_unix.host
@@ -137,6 +158,38 @@ class TestSpamCUnix(unittest2.TestCase):
         if not self.using_sa:
             self.assertEqual(True, result['didset'])
             self.assertEqual(True, result['didremove'])
+
+    def test_spamc_unix_forget(self):
+        with open(self.filename) as handle:
+            result = self.spamc_unix.learn(handle, 'forget')
+        self.assertIn('message', result)
+        self.assertEqual('EX_OK', result['message'])
+
+    @mock.patch('spamc.client.SpamC.get_connection')
+    def test_spamc_unix_perform_base_exp(self, mock_get_connection):
+        mock_get_connection.return_value.send.side_effect = ValueError('xxxx')
+        with open(self.filename) as handle:
+            self.assertRaises(
+                BaseException, self.spamc_unix.learn, handle, 'forget')
+        # mock_get_connection.conn.release.assert_called_once()
+
+    @mock.patch('spamc.client.SpamC.get_connection')
+    def test_spamc_unix_perform_timeout_exp(self, mock_get_connection):
+        mock_get_connection.return_value.send.side_effect = \
+            socket.timeout('xxxx')
+        with open(self.filename) as handle:
+            self.assertRaises(
+                SpamCTimeOutError, self.spamc_unix.learn, handle, 'forget')
+        # mock_get_connection.conn.release.assert_called_once()
+
+    @mock.patch('spamc.client.SpamC.get_connection')
+    def test_spamc_unix_perform_gaierror_exp(self, mock_get_connection):
+        mock_get_connection.return_value.send.side_effect = \
+            socket.gaierror('xxxx')
+        with open(self.filename) as handle:
+            self.assertRaises(
+                SpamCError, self.spamc_unix.learn, handle, 'forget')
+        # mock_get_connection.conn.release.assert_called_once()
 
 if __name__ == '__main__':
     unittest2.main()
