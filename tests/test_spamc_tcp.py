@@ -113,6 +113,10 @@ class TestSpamCTCP(unittest2.TestCase):
             self.assertEqual(True, result['didset'])
             self.assertEqual(False, result['didremove'])
 
+    def test_spamc_tcp_learn_error(self):
+        with open(self.filename) as handle:
+            self.assertRaises(SpamCError, self.spamc_tcp.learn, handle, {})
+
     def test_spamc_tcp_tell(self):
         with open(self.filename) as handle:
             result = self.spamc_tcp.tell(handle, 'forget')
@@ -122,6 +126,14 @@ class TestSpamCTCP(unittest2.TestCase):
             self.assertEqual(False, result['didset'])
             self.assertEqual(True, result['didremove'])
 
+    def test_spamc_tcp_tell_error(self):
+        with open(self.filename) as handle:
+            self.assertRaises(
+                SpamCError,
+                self.spamc_tcp.tell,
+                handle,
+                'bogus')
+
     def test_spamc_tcp_revoke(self):
         with open(self.filename) as handle:
             result = self.spamc_tcp.revoke(handle)
@@ -130,6 +142,12 @@ class TestSpamCTCP(unittest2.TestCase):
         if not self.using_sa:
             self.assertEqual(True, result['didset'])
             self.assertEqual(True, result['didremove'])
+
+    def test_spamc_tcp_forget(self):
+        with open(self.filename) as handle:
+            result = self.spamc_tcp.learn(handle, 'forget')
+        self.assertIn('message', result)
+        self.assertEqual('EX_OK', result['message'])
 
 if __name__ == '__main__':
     unittest2.main()
