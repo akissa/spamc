@@ -14,6 +14,7 @@ is thread safe and supports streaming.
 [![CircleCI Build](https://circleci.com/gh/akissa/spamc.svg?style=shield)](https://circleci.com/gh/akissa/spamc)
 [![Code Climate](https://codeclimate.com/github/akissa/spamc/badges/gpa.svg)](https://codeclimate.com/github/akissa/spamc)
 [![codecov.io](https://codecov.io/github/akissa/spamc/coverage.svg?branch=master)](https://codecov.io/github/akissa/spamc?branch=master)
+[![License](https://img.shields.io/badge/license-AGPLv3%2B-blue.svg)](https://github.com/akissa/spamc/blob/master/LICENSE)
 
 
 ## Installation
