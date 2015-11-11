@@ -11,9 +11,9 @@ It can be used with [gevent](http://www.gevent.org) and [eventlet](http://www.ev
 is thread safe and supports streaming.
 
 [![Build Status](https://travis-ci.org/akissa/spamc.svg)](https://travis-ci.org/akissa/spamc)
-[![CircleCI Build](https://circleci.com/gh/akissa/spamc.svg?style=shield)](https://circleci.com/gh/akissa/spamc)
 [![Code Climate](https://codeclimate.com/github/akissa/spamc/badges/gpa.svg)](https://codeclimate.com/github/akissa/spamc)
 [![codecov.io](https://codecov.io/github/akissa/spamc/coverage.svg?branch=master)](https://codecov.io/github/akissa/spamc?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/spamc/badge/?version=latest)](http://spamc.readthedocs.org/en/latest/?badge=latest)
 [![License](https://img.shields.io/badge/license-AGPLv3%2B-blue.svg)](https://github.com/akissa/spamc/blob/master/LICENSE)
 
 
@@ -52,6 +52,8 @@ Options:
   -a USER, --user=USER  Username of the user on whose behalfthis scan is being
                         performed
 ```
+
+Module documentation is available on [readthedocs.org](https://spamc.readthedocs.org)
 
 ## Contributing
 
