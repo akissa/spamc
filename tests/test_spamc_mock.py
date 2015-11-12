@@ -20,14 +20,14 @@ class TestSpamCTCP(unittest2.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.using_sa = True
-        cls.tcp_server = return_tcp(10050)
+        cls.tcp_server = return_tcp(10060)
         t1 = threading.Thread(target=cls.tcp_server.serve_forever)
         t1.setDaemon(True)
         t1.start()
         cls.using_sa = False
         cls.spamc_tcp = SpamC(
             host='127.0.0.1',
-            port=10050)
+            port=10060)
 
     @classmethod
     def tearDownClass(cls):
@@ -46,7 +46,7 @@ class TestSpamCTCP(unittest2.TestCase):
                 .return_value.read.return_value = ''
             spamc_tcp = SpamC(
                 host='127.0.0.1',
-                port=10050)
+                port=10060)
             with self.assertRaises(SpamCResponseError):
                 spamc_tcp.ping()
             mock_conn.return_value.socket.return_value.makefile\
