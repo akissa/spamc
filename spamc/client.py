@@ -140,11 +140,8 @@ class SpamC(object):
         self.user = user
         if isinstance(backend, str):
             self.backend_mod = load_backend(backend)
-            # self.backend = backend
         else:
             self.backend_mod = backend
-            # self.backend = str(getattr(backend, '__name__', backend))
-        # self.backend = backend
         self.max_tries = max_tries
         self.wait_tries = wait_tries
         self.timeout = timeout
@@ -209,8 +206,9 @@ class SpamC(object):
                                 'msg param should be a string or file handle')
                     else:
                         msg_length = '2'
+
                 headers = self.get_headers(cmd, msg_length, extra_headers)
-                # print headers
+
                 if isinstance(msg, types.StringTypes):
                     if self.gzip and msg:
                         msg = compress(msg + '\r\n', self.compress_level)
