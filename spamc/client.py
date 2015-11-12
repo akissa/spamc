@@ -263,7 +263,12 @@ class SpamC(object):
                     msg_length = str(msg.tell() + 2)
                 else:
                     if msg:
-                        msg_length = str(len(msg) + 2)
+                        try:
+                            msg_length = str(len(msg) + 2)
+                        except TypeError:
+                            conn.close()
+                            raise ValueError(
+                                'msg param should be a string or file handle')
                     else:
                         msg_length = '2'
                 headers = self.get_headers(cmd, msg_length, extra_headers)
@@ -280,10 +285,6 @@ class SpamC(object):
                         if hasattr(msg, 'seek'):
                             msg.seek(0)
                         conn.sendfile(msg, self.gzip, self.compress_level)
-                    else:
-                        if self.gzip:
-                            msg = compress(msg, self.compress_level)
-                        conn.send(msg)
                 conn.send('\r\n')
                 try:
                     conn.socket().shutdown(socket.SHUT_WR)
