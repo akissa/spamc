@@ -29,6 +29,7 @@ class TestSpamCUnix(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        gzip = False
         cls.using_sa = True
         if os.environ.get('SPAMD_SOCK', None) is None:
             cls.unix_server = return_unix()
@@ -36,9 +37,12 @@ class TestSpamCUnix(unittest2.TestCase):
             t1.setDaemon(True)
             t1.start()
             cls.using_sa = False
+        if os.environ.get('SPAMD_COMPRESS', None) and \
+                os.environ.get('CI', False):
+            gzip = True
         cls.spamc_unix = SpamC(
             socket_file=os.environ.get('SPAMD_SOCK', 'spamd.sock'),
-            gzip=os.environ.get('SPAMD_COMPRESS', None))
+            gzip=gzip)
         path = os.path.dirname(os.path.dirname(__file__))
         cls.filename = os.path.join(path, 'examples', 'sample-spam.txt')
 
