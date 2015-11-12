@@ -64,6 +64,9 @@ class TestSpamCUnix(unittest2.TestCase):
         with open(self.filename) as handle:
             self.assertRaises(SpamCError, self.spamc_unix.tell, handle, 'mojo')
 
+    def test_spamc_unix_invalid_msg(self):
+        self.assertRaises(ValueError, self.spamc_unix.check, 1)
+
     def test_spamc_unix_ping(self):
         result = self.spamc_unix.ping()
         self.assertIn('message', result)
