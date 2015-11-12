@@ -28,10 +28,13 @@ class TestSpamCTCP(unittest2.TestCase):
             t1.setDaemon(True)
             t1.start()
             cls.using_sa = False
+        if os.environ.get('SPAMD_COMPRESS', None) and \
+                os.environ.get('CI', False) is False:
+            gzip = True
         cls.spamc_tcp = SpamC(
             host=os.environ.get('SPAMD_HOST', '127.0.0.1'),
             port=int(os.environ.get('SPAMD_PORT', 10040)),
-            gzip=os.environ.get('SPAMD_COMPRESS', None),
+            gzip=gzip,
             compress_level=int(os.environ.get('SPAMD_COMPRESS_LEVEL', 6)),
             backend=backend_eventlet,
             user=getuser() if 'SPAMD_HOST' not in os.environ else 'exim')
