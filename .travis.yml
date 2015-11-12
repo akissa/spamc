@@ -11,6 +11,7 @@ env:
 script: python setup.py nosetests
 before_script:
     - sudo apt-get update -qq
+    - sudo apt-get install libperlio-gzip-perl
     - sudo apt-get install spamassassin
     - echo 'ENABLED=1' | sudo tee -a /etc/default/spamassassin
     - echo 'OPTIONS="--listen=127.0.0.1 --socketpath=/var/run/spamd.sock --socketmode=0777 -d -l -m5"' | sudo tee -a /etc/default/spamassassin
