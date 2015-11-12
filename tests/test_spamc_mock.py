@@ -52,5 +52,25 @@ class TestSpamCTCP(unittest2.TestCase):
             mock_conn.return_value.socket.return_value.makefile\
                 .return_value.read.assert_called_once_with()
 
+    def test_spamc_headers_learn(arg):
+        with mock.patch.object(SpamC, 'perform') as mock_perform:
+            msg = 'xxxx'
+            spamc_tcp = SpamC(
+                host='127.0.0.1',
+                port=10060)
+            spamc_tcp.tell(msg, 'learn', 'ham')
+            headers = {'Set': 'local', 'Message-class': 'ham'}
+            mock_perform.assert_called_once_with('TELL', msg, headers)
+
+    def test_spamc_headers_report(arg):
+        with mock.patch.object(SpamC, 'perform') as mock_perform:
+            msg = 'xxxx'
+            spamc_tcp = SpamC(
+                host='127.0.0.1',
+                port=10060)
+            spamc_tcp.tell(msg, 'report')
+            headers = {'Message-class': 'spam', 'Set': 'local, remote'}
+            mock_perform.assert_called_once_with('TELL', msg, headers)
+
 if __name__ == '__main__':
     unittest2.main()
