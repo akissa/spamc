@@ -55,7 +55,6 @@ class TestSpamCTCP(unittest2.TestCase):
 
     def test_spamc_tcp_exp2(self):
         with mock.patch.object(SpamC, 'get_connection') as mock_conn:
-            # mock_conn.return_value._s = None
             mock_conn.return_value._s.close.side_effect = socket.error('xxxx')
             mock_conn.return_value.send.side_effect = socket.error('xxxx')
             spamc_tcp = SpamC(

@@ -62,6 +62,15 @@ class TestSpamCTCP(unittest2.TestCase):
         if not self.using_sa:
             self.assertEqual(15.0, result['score'])
 
+    def test_spamc_tcp_check_text(self):
+        with open(self.filename) as handle:
+            msg = handle.read()
+            result = self.spamc_tcp.check(msg)
+        self.assertIn('message', result)
+        self.assertEqual('EX_OK', result['message'])
+        if not self.using_sa:
+            self.assertEqual(15.0, result['score'])
+
     def test_spamc_tcp_symbols(self):
         with open(self.filename) as handle:
             result = self.spamc_tcp.symbols(handle)
