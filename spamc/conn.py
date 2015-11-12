@@ -24,7 +24,7 @@ import socket
 
 from zlib import compressobj
 
-from spamc.utils import is_connected
+# from spamc.utils import is_connected
 
 BLOCK_SIZE = 64
 CHUNK_SIZE = 16 * 1024
@@ -46,11 +46,11 @@ class Connector(object):
         if hasattr(self, '_connected') and self._connected:
             self.invalidate()
 
-    def is_connected(self):
-        """Check connection status"""
-        if self._connected:
-            return is_connected(self._s)
-        return False
+    # def is_connected(self):
+    #     """Check connection status"""
+    #     if self._connected:
+    #         return is_connected(self._s)
+    #     return False
 
     def socket(self):
         """return socket"""

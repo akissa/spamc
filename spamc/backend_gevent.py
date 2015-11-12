@@ -8,3 +8,4 @@ from gevent import socket
 
 Socket = socket.socket
 # Select = select.select
+assert sleep

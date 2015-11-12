@@ -11,7 +11,6 @@ except ImportError:
 from getpass import getuser
 
 from spamc import SpamC
-from spamc import backend_eventlet
 from spamc.exceptions import SpamCError
 
 from _s import return_tcp
@@ -37,7 +36,6 @@ class TestSpamCTCP(unittest2.TestCase):
             port=int(os.environ.get('SPAMD_PORT', 10040)),
             gzip=gzip,
             compress_level=int(os.environ.get('SPAMD_COMPRESS_LEVEL', 6)),
-            backend=backend_eventlet,
             user=getuser() if 'SPAMD_HOST' not in os.environ else 'exim')
         path = os.path.dirname(os.path.dirname(__file__))
         cls.filename = os.path.join(path, 'examples', 'sample-spam.txt')

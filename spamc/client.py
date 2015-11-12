@@ -61,73 +61,11 @@ def get_response(cmd, conn):
         symbols=[],
         headers={},
     )
+
     if cmd == 'TELL':
         resp_dict['didset'] = False
         resp_dict['didremove'] = False
-    # header = resp.readline(65537)
-    # if len(header) > 65536:
-    #     raise SpamCResponseError('spamd unrecognized response: %s' % header)
-    # header = header.rstrip('\r\n')
-    # words = header.split()
-    # if len(words) == 3:
-    #     version, code, literal_code = words
-    #     if version[:6] != 'SPAMD/':
-    #         raise SpamCResponseError("Bad request version (%r)" % version)
-    #     try:
-    #         base_version_number = version.split('/', 1)[1]
-    #         version_number = base_version_number.split(".")
-    #         if len(version_number) != 2:
-    #             raise ValueError
-    #         version_number = int(version_number[0]), int(version_number[1])
-    #     except (ValueError, IndexError):
-    #         raise SpamCResponseError("Bad request version (%r)" % version)
-    #     if version_number >= (1, 6):
-    #         raise SpamCResponseError(
-    #             "Invalid SPAMD Version (%s)" % base_version_number)
-    # else:
-    #     raise SpamCResponseError('spamd unrecognized response: %s' % header)
-    # headers = Message(resp, 0)
-    # match = RESPONSE_RE.match(header)
-    # resp_dict.update(match.groupdict())
-    # resp_dict['code'] = int(resp_dict['code'])
-    # if cmd in [
-    #         'CHECK', 'HEADERS', 'PROCESS',
-    #         'REPORT', 'REPORT_IFSPAM', 'SYMBOLS']:
-    #     match = SPAM_RE.match(headers.get('Spam'))
-    #     if match:
-    #         tmp = match.groupdict()
-    #         resp_dict['score'] = float(tmp['score'])
-    #         resp_dict['basescore'] = float(tmp['basescore'])
-    #         resp_dict['isspam'] = tmp['isspam'] in ['True', 'Yes']
-    # # § headers.get_payload()
-    # if 'DidSet' in headers:
-    #     resp_dict['didset'] = True
-    # if 'DidRemove' in headers:
-    #     resp_dict['didremove'] = True
-    # for line in resp:
-    #     if line.strip() == '':
-    #         # loc = resp.tell()
-    #         break
-    # content_length = int(headers.get('Content-length', 0))
-    # # resp.seek(loc)
-    # if cmd == 'SYMBOLS':
-    #     body = resp.read(content_length)
-    #     match = PART_RE.findall(body)
-    #     for part in match:
-    #         resp_dict['symbols'].append(part)
-    # if cmd == 'PROCESS':
-    #     body = resp.read(content_length)
-    #     resp_dict['message'] = body
-    # if cmd == 'HEADERS':
-    #     body = resp.read(content_length)
-    #     resp_dict['headers'] = []
-    #     parser = Parser()
-    #     headers = parser.parsestr(body, headersonly=True)
-    #     for item in headers.items():
-    #         resp_dict['headers'].append("%s: %s" % item)
-    # print resp_dict
-    # return resp_dict
-    # print headers
+
     data = resp.read()
     lines = data.split('\r\n')
     for index, line in enumerate(lines):

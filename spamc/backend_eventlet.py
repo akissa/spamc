@@ -8,3 +8,4 @@ from eventlet.green import socket
 
 Socket = socket.socket
 # Select = select.select
+assert sleep
