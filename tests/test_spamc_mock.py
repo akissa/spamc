@@ -1,4 +1,5 @@
 import sys
+import socket
 import threading
 try:
     import unittest2
@@ -10,7 +11,7 @@ except ImportError:
 import mock
 
 from spamc import SpamC
-from spamc.exceptions import SpamCResponseError
+from spamc.exceptions import SpamCResponseError, SpamCError
 
 from _s import return_tcp
 
@@ -51,6 +52,27 @@ class TestSpamCTCP(unittest2.TestCase):
                 spamc_tcp.ping()
             mock_conn.return_value.socket.return_value.makefile\
                 .return_value.read.assert_called_once_with()
+
+    def test_spamc_tcp_exp2(self):
+        with mock.patch.object(SpamC, 'get_connection') as mock_conn:
+            # mock_conn.return_value._s = None
+            mock_conn.return_value._s.close.side_effect = socket.error('xxxx')
+            mock_conn.return_value.send.side_effect = socket.error('xxxx')
+            spamc_tcp = SpamC(
+                host='127.0.0.1',
+                port=10060)
+            with self.assertRaises(SpamCError):
+                spamc_tcp.ping()
+
+    def test_spamc_tcp_exp3(self):
+        with mock.patch.object(SpamC, 'get_connection') as mock_conn:
+            mock_conn.return_value._s = None
+            mock_conn.return_value.send.side_effect = socket.error('xxxx')
+            spamc_tcp = SpamC(
+                host='127.0.0.1',
+                port=10060)
+            with self.assertRaises(SpamCError):
+                spamc_tcp.ping()
 
     def test_spamc_headers_learn(arg):
         with mock.patch.object(SpamC, 'perform') as mock_perform:
