@@ -74,9 +74,9 @@ class Connector(object):
         "send data"
         return self._s.sendall(data)
 
-    def recv(self, size=1024):
-        "receive data"
-        return self._s.recv(size)
+    # def recv(self, size=1024):
+    #     "receive data"
+    #     return self._s.recv(size)
 
     def sendfile(self, data, zlib_compress=None, compress_level=6):
         """Send data from a file object"""
