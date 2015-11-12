@@ -19,6 +19,11 @@ from spamc.exceptions import SpamCError, SpamCTimeOutError
 
 from _s import return_unix
 
+TEST_MSG = (
+    'XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-'
+    'STANDARD-ANTI-UBE-TEST-EMAIL*C.34X'
+)
+
 
 class TestSpamCUnix(unittest2.TestCase):
 
@@ -32,7 +37,8 @@ class TestSpamCUnix(unittest2.TestCase):
             t1.start()
             cls.using_sa = False
         cls.spamc_unix = SpamC(
-            socket_file=os.environ.get('SPAMD_SOCK', 'spamd.sock'))
+            socket_file=os.environ.get('SPAMD_SOCK', 'spamd.sock'),
+            gzip=os.environ.get('SPAMD_COMPRESS', None))
         path = os.path.dirname(os.path.dirname(__file__))
         cls.filename = os.path.join(path, 'examples', 'sample-spam.txt')
 
@@ -58,6 +64,13 @@ class TestSpamCUnix(unittest2.TestCase):
         result = self.spamc_unix.ping()
         self.assertIn('message', result)
         self.assertEqual('PONG', result['message'])
+
+    def test_spamc_unix_check_text(self):
+        result = self.spamc_unix.check(TEST_MSG)
+        self.assertIn('message', result)
+        self.assertEqual('EX_OK', result['message'])
+        if not self.using_sa:
+            self.assertEqual(15.0, result['score'])
 
     def test_spamc_unix_check(self):
         with open(self.filename) as handle:

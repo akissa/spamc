@@ -6,8 +6,8 @@ install:
     - python setup.py install
 sudo: required
 env:
-    - SPAMD_SOCK=/var/run/spamd.sock
     - SPAMD_SOCK=
+    - SPAMD_SOCK=/var/run/spamd.sock SPAMD_COMPRESS=1
 script: python setup.py nosetests
 before_script:
     - sudo apt-get update -qq
