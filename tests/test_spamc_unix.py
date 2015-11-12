@@ -72,6 +72,7 @@ class TestSpamCUnix(unittest2.TestCase):
         self.assertIn('message', result)
         self.assertEqual('PONG', result['message'])
 
+    @unittest2.skipIf(os.environ.get('CI', False) is not False, 'CI not ok')
     def test_spamc_unix_check_text(self):
         result = self.spamc_unix.check(TEST_MSG)
         self.assertIn('message', result)
