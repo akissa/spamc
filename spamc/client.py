@@ -270,8 +270,10 @@ class SpamC(object):
                 # print headers
                 if isinstance(msg, types.StringTypes):
                     if self.gzip and msg:
-                        msg = compress(msg, self.compress_level)
-                    conn.send(headers + msg + '\r\n')
+                        msg = compress(msg + '\r\n', self.compress_level)
+                    else:
+                        msg = msg + '\r\n'
+                    conn.send(headers + msg)
                 else:
                     conn.send(headers)
                     if hasattr(msg, 'read'):
