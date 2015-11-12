@@ -19,6 +19,7 @@ class TestSpamCTCP(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        gzip = False
         cls.using_sa = True
         if os.environ.get('SPAMD_HOST', None) is None:
             cls.tcp_server = return_tcp(10030)
