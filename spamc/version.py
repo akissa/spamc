@@ -21,5 +21,5 @@ versioning
 """
 
 # pylint: disable=invalid-name,bad-builtin
-version_info = (0, 0, 7)
+version_info = (0, 0, 8)
 __version__ = ".".join(map(str, version_info))
