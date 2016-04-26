@@ -43,6 +43,8 @@ def get_readme():
         pandoc = os.path.join(path, 'pandoc')
         if os.path.isfile(pandoc) and os.access(pandoc, os.X_OK):
             break
+        else:
+            pandoc = None
     try:
         if pandoc:
             cmd = [pandoc, '-t', 'rst', 'README.md']
