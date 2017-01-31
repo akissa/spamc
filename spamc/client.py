@@ -227,15 +227,15 @@ class SpamC(object):
                 except socket.error:
                     pass
                 return get_response(cmd, conn)
-            except socket.gaierror, err:
+            except socket.gaierror as err:
                 if conn is not None:
                     conn.release()
                 raise SpamCError(str(err))
-            except socket.timeout, err:
+            except socket.timeout as err:
                 if conn is not None:
                     conn.release()
                 raise SpamCTimeOutError(str(err))
-            except socket.error, err:
+            except socket.error as err:
                 if conn is not None:
                     conn.close()
                 errors = (errno.EAGAIN, errno.EPIPE, errno.EBADF,
