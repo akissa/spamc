@@ -79,10 +79,6 @@ class TestSpamdHandler(StreamRequestHandler):
 
     def do_HEADERS(self):
         """Emulate HEADERS"""
-        headers = []
-        for header in self.headers:
-            headers.append("%s: %s" % (header, self.headers[header]))
-        # content = '\r\n'.join(headers)
         content_length = int(self.headers.get('Content-length', 0))
         body = self.rfile.read(content_length)
         parts, = body.split('\r\n\r\n')
