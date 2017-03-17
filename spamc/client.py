@@ -127,7 +127,7 @@ class SpamC(object):
                  user=None,
                  timeout=None,
                  wait_tries=0.3,
-                 max_tries=3,
+                 max_tries=5,
                  backend="thread",
                  gzip=None,
                  compress_level=6,
