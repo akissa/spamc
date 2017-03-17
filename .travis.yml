@@ -23,7 +23,7 @@ after_success:
 branches:
     only:
         - master
-        - investigate-connection-resets
+        - testing
 notifications:
   email:
     on_success: change
