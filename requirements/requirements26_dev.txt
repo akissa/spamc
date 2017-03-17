@@ -4,4 +4,4 @@ coverage
 unittest2
 importlib
 eventlet
-gevent
+gevent<1.2.0
