@@ -126,7 +126,7 @@ class SpamC(object):
                  socket_file='/var/run/spamassassin/spamd.sock',
                  user=None,
                  timeout=None,
-                 wait_tries=0.3,
+                 wait_tries=0.5,
                  max_tries=5,
                  backend="thread",
                  gzip=None,
@@ -247,6 +247,7 @@ class SpamC(object):
                     conn.release()
                 raise
             tries += 1
+            self.wait_tries = self.wait_tries + (tries * self.wait_tries)
             self.backend_mod.sleep(self.wait_tries)
 
     def check(self, msg):
