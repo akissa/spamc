@@ -85,6 +85,7 @@ class TestSpamCTCP(unittest2.TestCase):
         self.assertIn('message', result)
         self.assertEqual('EX_OK', result['message'])
         if not self.using_sa:
+            print repr(result)
             self.assertIn('BAYES_00', result['report'][0]['name'])
 
     def test_spamc_tcp_process(self):

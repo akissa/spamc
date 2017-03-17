@@ -7,7 +7,7 @@ install:
 sudo: required
 env:
     - SPAMD_SOCK=/var/run/spamd.sock SPAMD_COMPRESS=1
-script: python setup.py nosetests
+script: NOSE_NOCAPTURE=1 nosetests
 before_script:
     - sudo apt-get update -qq
     - sudo apt-get install spamassassin
